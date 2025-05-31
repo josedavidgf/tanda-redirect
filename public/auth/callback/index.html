@@ -1,46 +1,61 @@
 <!DOCTYPE html>
 <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redirigiendo a la app...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Redirigiendo a la app...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const params = new URLSearchParams(window.location.search);
+        const access_token = params.get('access_token');
+        const refresh_token = params.get('refresh_token');
+        const type = params.get('type');
 
-      const params = new URLSearchParams(window.location.search);
-      const access_token = params.get('access_token');
-      const refresh_token = params.get('refresh_token');
-      const type = params.get('type');
+        const deepLink = `tanda://auth-callback?access_token=${access_token}&refresh_token=${refresh_token}&type=${type}`;
 
-      if (isMobile && access_token && refresh_token) {
-        const deeplink = `tanda://auth-callback?access_token=${access_token}&refresh_token=${refresh_token}&type=${type}`;
-        window.location.href = deeplink;
-      } else {
-        document.getElementById('fallback').style.display = 'block';
+        if (isMobile && access_token && refresh_token) {
+          // Intento automático de abrir app
+          window.location.href = deepLink;
+
+          // Backup: mostrar botón si en 2s no se redirige
+          setTimeout(() => {
+            document.getElementById('fallback').style.display = 'block';
+            document.getElementById('openApp').href = deepLink;
+          }, 2000);
+        } else {
+          document.getElementById('fallback').style.display = 'block';
+        }
+      });
+    </script>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        text-align: center;
+        background-color: #f8f8f8;
       }
-    });
-  </script>
-  <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      text-align: center;
-      background-color: #f8f8f8;
-    }
-  </style>
-</head>
-
-<body>
-  <div id="fallback" style="display: none;">
-    <h1>✅ Cuenta verificada</h1>
-    <p>Puedes cerrar esta página y volver a la app.</p>
-  </div>
-</body>
-
+      a.button {
+        background: #007aff;
+        color: white;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 8px;
+        display: inline-block;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fallback" style="display: none;">
+      <h1>✅ Cuenta verificada</h1>
+      <p>Puedes cerrar esta página o volver a la app.</p>
+      <a id="openApp" class="button" href="#">Abrir la app</a>
+    </div>
+  </body>
 </html>
